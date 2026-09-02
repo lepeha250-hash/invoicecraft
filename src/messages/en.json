@@ -346,7 +346,9 @@
     "google": "Google",
     "googleError": "Google sign-in failed. Please try again.",
     "checkEmail": "Check your email to confirm your account before logging in.",
-    "authError": "Authentication failed. Please check your details and try again."
+    "authError": "Authentication failed. Please check your details and try again.",
+    "login": "Log in",
+    "signup": "Sign up"
   },
   "dashboard": {
     "welcome": "Welcome back, {name}!",
