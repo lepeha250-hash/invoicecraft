@@ -31,6 +31,7 @@ export async function GET(request: NextRequest) {
     );
 
     const { data, error } = await supabase.auth.exchangeCodeForSession(code);
+    console.log("AUTH_CALLBACK code=", code ? code.slice(0, 8) + "..." : "none", "error=", error?.message, "hasSession=", !!data.session);
     if (!error && data.session) {
       const userId = data.session.user.id;
       const orgId = await ensureOrg(userId, data.session.user.email);
