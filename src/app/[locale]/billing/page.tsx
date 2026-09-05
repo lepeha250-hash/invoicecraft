@@ -8,26 +8,17 @@ import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { CreditCard, ArrowUpRight, Loader2, Check } from "lucide-react";
 import { useEffect, useState } from "react";
-
-type Plan = "free" | "pro" | "business";
-type Interval = "month" | "quarter" | "semiannual" | "year";
-type PaidPlan = Exclude<Plan, "free">;
-
-const INTERVALS: Interval[] = ["month", "quarter", "semiannual", "year"];
-
-const PRICES: Record<PaidPlan, Record<Interval, number>> = {
-  pro: { month: 29, quarter: 79, semiannual: 149, year: 279 },
-  business: { month: 99, quarter: 259, semiannual: 499, year: 949 },
-};
-
-const PLAN_RANK: Record<Plan, number> = { free: 0, pro: 1, business: 2 };
-
-const INTERVAL_MONTHS: Record<Interval, number> = {
-  month: 1,
-  quarter: 3,
-  semiannual: 6,
-  year: 12,
-};
+import {
+  Plan,
+  PaidPlan,
+  Interval,
+  PLANS,
+  INTERVALS,
+  PRICES,
+  PLAN_RANK,
+  priceOf as planPrice,
+  discountOf as planDiscount,
+} from "@/lib/plans";
 
 interface SubscriptionData {
   plan: Plan;
@@ -37,9 +28,11 @@ interface SubscriptionData {
 
 export default function BillingPage() {
   const t = useTranslations("billing");
-  const [locale, setLocale] = useState<"en" | "ru">("en");
+  const [locale, setLocale] = useState<"en" | "ru">(() =>
+    typeof document !== "undefined" && document.documentElement.lang === "ru" ? "ru" : "en"
+  );
 
-  const plans: Plan[] = ["free", "pro", "business"];
+  const plans: Plan[] = PLANS;
   const [currentPlan, setCurrentPlan] = useState<Plan>("free");
   const [currentInterval, setCurrentInterval] = useState<Interval>("month");
   const [currentPeriodEnd, setCurrentPeriodEnd] = useState<string | null>(null);
@@ -52,7 +45,6 @@ export default function BillingPage() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    setLocale(document.documentElement.lang === "ru" ? "ru" : "en");
     (async () => {
       try {
         const res = await fetch("/api/subscription");
@@ -104,22 +96,9 @@ export default function BillingPage() {
     }
   };
 
-  const priceOf = (plan: Plan, interval: Interval) => {
-    if (plan === "free") return 0;
-    return PRICES[plan][interval];
-  };
-
-  const discountOf = (plan: Plan, interval: Interval) => {
-    if (plan === "free" || interval === "month") return 0;
-    const monthly = PRICES[plan as PaidPlan].month;
-    const value = PRICES[plan as PaidPlan][interval];
-    const months = INTERVAL_MONTHS[interval];
-    return Math.round((1 - value / (monthly * months)) * 100);
-  };
-
   const formatPrice = (plan: Plan, interval: Interval) => {
-    if (plan === "free") return `$${priceOf(plan, interval)}`;
-    const value = priceOf(plan, interval);
+    const value = planPrice(plan, interval);
+    if (plan === "free") return `$${value}`;
     return `$${value} / ${t(`interval.${interval}`).toLowerCase()}`;
   };
 
@@ -156,11 +135,11 @@ export default function BillingPage() {
                         <p className="text-base font-semibold">
                           {t("currentPrice", { price: formatPrice(currentPlan, currentInterval) })}
                         </p>
-                        {discountOf(currentPlan, currentInterval) > 0 && (
-                          <Badge variant="secondary">−{discountOf(currentPlan, currentInterval)}%</Badge>
+                        {planDiscount(currentPlan, currentInterval) > 0 && (
+                          <Badge variant="secondary">−{planDiscount(currentPlan, currentInterval)}%</Badge>
                         )}
                       </div>
-                      {discountOf(currentPlan, currentInterval) > 0 && (
+                      {planDiscount(currentPlan, currentInterval) > 0 && (
                         <p className="text-xs text-muted-foreground line-through">
                           ${PRICES[currentPlan as PaidPlan].month} / {t("interval.month").toLowerCase()}
                         </p>
@@ -256,7 +235,7 @@ export default function BillingPage() {
                       {isPaid && upgradable && (
                         <div className="flex flex-wrap items-center gap-2">
                           {INTERVALS.map((iv) => {
-                            const d = discountOf(plan, iv);
+                            const d = planDiscount(plan, iv);
                             return (
                               <button
                                 key={iv}
@@ -270,7 +249,7 @@ export default function BillingPage() {
                                     : "border-border bg-background text-muted-foreground hover:border-primary/50"
                                 }`}
                               >
-                                ${priceOf(plan, iv)} · {t(`interval.${iv}`)}
+                                ${planPrice(plan, iv)} · {t(`interval.${iv}`)}
                                 {d > 0 && (
                                   <span
                                     className={

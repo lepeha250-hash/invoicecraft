@@ -52,7 +52,9 @@ interface PortalClientProps {
 
 export default function PortalClient({ locale, share, settings }: PortalClientProps) {
   const t = useTranslations("portal");
-  const [docStatus, setDocStatus] = useState(share.status);
+  const [docStatus, setDocStatus] = useState(() =>
+    share.status === "pending" ? "viewed" : share.status
+  );
   const [signing, setSigning] = useState(false);
   const [paying, setPaying] = useState(false);
   const [payError, setPayError] = useState(false);
@@ -74,12 +76,6 @@ export default function PortalClient({ locale, share, settings }: PortalClientPr
     (sum, item) => sum + (item.quantity || 0) * (item.unit_price || 0),
     0
   ) || doc.total || 0;
-
-  useEffect(() => {
-    if (docStatus === "pending") {
-      setDocStatus("viewed");
-    }
-  }, []);
 
   const startDrawing = (e: React.MouseEvent | React.TouchEvent) => {
     setIsDrawing(true);

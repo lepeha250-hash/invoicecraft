@@ -17,7 +17,16 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 // Force dynamic - fresh metrics each load
 export const dynamic = "force-dynamic";
 
-function computeAnalytics(docs: any[]) {
+interface AnalyticsDocRow {
+  id: string;
+  type: string;
+  status: string;
+  total: number | null;
+  created_at: string | null;
+  content?: { header?: { client_name?: string } } | null;
+}
+
+function computeAnalytics(docs: AnalyticsDocRow[]) {
   const totalDocs = docs.length;
   const sentCount = docs.filter((d) => d.status === "sent").length;
   const paidDocs = docs.filter((d) => d.status === "paid");
@@ -69,15 +78,15 @@ function computeAnalytics(docs: any[]) {
     .slice(0, 6);
 
   const recent = [...docs]
-    .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
+    .sort((a, b) => new Date(b.created_at || 0).getTime() - new Date(a.created_at || 0).getTime())
     .slice(0, 5)
     .map((d) => ({
       id: d.id,
       client: d.content?.header?.client_name || "Unknown",
       type: d.type,
       status: d.status,
-      total: d.total,
-      date: d.created_at,
+      total: d.total || 0,
+      date: d.created_at || "",
     }));
 
   return {
@@ -112,7 +121,7 @@ export default async function AnalyticsPage({ params }: Props) {
     notFound();
   }
 
-  const data = computeAnalytics(docs || []);
+  const data = computeAnalytics((docs || []) as AnalyticsDocRow[]);
 
   return <AnalyticsClient locale={locale as "en" | "ru"} data={data} />;
 }
