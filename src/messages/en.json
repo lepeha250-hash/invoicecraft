@@ -480,6 +480,11 @@
     "freeHint": "Temporary hack: upgrade to Pro free of charge without a card.",
     "availablePlans": "Available Plans",
     "current": "Current",
-    "active": "Active"
+    "active": "Active",
+    "planDescription": {
+      "free": "3 documents, up to 5 line items",
+      "pro": "Unlimited documents, PDF export, API access",
+      "business": "Everything in Pro plus team + priority support"
+    }
   }
 }

@@ -11,6 +11,18 @@ import { useEffect, useState } from "react";
 
 type Plan = "free" | "pro" | "business";
 
+const PLAN_PRICES: Record<Plan, string> = {
+  free: "0",
+  pro: "29",
+  business: "99",
+};
+
+const PLAN_CURRENCY: Record<Plan, string> = {
+  free: "$",
+  pro: "$",
+  business: "$",
+};
+
 export default function BillingPage() {
   const t = useTranslations("billing");
   const tc = useTranslations("common");
@@ -128,20 +140,35 @@ export default function BillingPage() {
                           </Badge>
                         )}
                       </div>
-                      {plan !== currentPlan && (
-                        <Button
-                          variant={plan === "free" ? "ghost" : "default"}
-                          size="sm"
-                          onClick={() => activate(plan)}
-                          disabled={activating === plan}
-                        >
-                          {activating === plan ? <Loader2 className="w-4 h-4 animate-spin" /> : null}
-                          {plan === "free" ? t("cancelPlan") : t("upgrade")}
-                        </Button>
-                      )}
-                      {plan === currentPlan && !loading && (
-                        <span className="text-sm text-muted-foreground">{t("active")}</span>
-                      )}
+                      <div className="flex items-center gap-3">
+                        <div className="text-right">
+                          <p className="text-lg font-semibold leading-none">
+                            {PLAN_CURRENCY[plan]}
+                            {PLAN_PRICES[plan]}
+                            {plan !== "free" && (
+                              <span className="text-xs font-normal text-muted-foreground">/mo</span>
+                            )}
+                          </p>
+                          <p className="text-xs text-muted-foreground mt-1 max-w-[180px] truncate">
+                            {t(`planDescription.${plan}`)}
+                          </p>
+                        </div>
+                        {plan !== currentPlan && (
+                          <Button
+                            variant={plan === "free" ? "ghost" : "default"}
+                            size="sm"
+                            onClick={() => activate(plan)}
+                            disabled={activating === plan}
+                            className="shrink-0"
+                          >
+                            {activating === plan ? <Loader2 className="w-4 h-4 animate-spin" /> : null}
+                            {plan === "free" ? t("cancelPlan") : t("upgrade")}
+                          </Button>
+                        )}
+                        {plan === currentPlan && !loading && (
+                          <span className="text-sm text-muted-foreground">{t("active")}</span>
+                        )}
+                      </div>
                     </div>
                   </CardContent>
                 </Card>
