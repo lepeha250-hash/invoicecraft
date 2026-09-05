@@ -1,6 +1,7 @@
 "use client";
 
 import { useTranslations, useLocale } from "next-intl";
+import { AppSidebar } from "@/components/app-sidebar";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -370,9 +371,10 @@ export default function EditorClient({ locale, initialDoc }: EditorClientProps) 
       console.error("PDF export error:", e);
     }
   };
+return (
 
-  return (
     <div className="flex min-h-screen">
+      <AppSidebar />
       <main className="flex-1 p-6 md:p-8">
         <div className="max-w-4xl mx-auto space-y-6">
           <div className="flex items-center justify-between">
