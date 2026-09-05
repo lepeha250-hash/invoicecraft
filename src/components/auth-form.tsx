@@ -40,7 +40,9 @@ export default function AuthPage({ mode = "login" }: { mode?: AuthMode }) {
     try {
       const { error } = await supabase.auth.signInWithOAuth({
         provider: "google",
-        options: { redirectTo },
+        options: {
+          redirectTo: `${window.location.origin}/en/auth/signin-redirect`,
+        },
       });
       if (error) throw error;
     } catch (e) {

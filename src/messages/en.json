@@ -348,7 +348,11 @@
     "checkEmail": "Check your email to confirm your account before logging in.",
     "authError": "Authentication failed. Please check your details and try again.",
     "login": "Log in",
-    "signup": "Sign up"
+    "signup": "Sign up",
+    "signinRedirectTitle": "Signing you in…",
+    "signinRedirectSubtitle": "Preparing your workspace",
+    "signinRedirectDone": "You're signed in. Redirecting…",
+    "signinRedirectError": "Something went wrong while signing you in."
   },
   "dashboard": {
     "welcome": "Welcome back, {name}!",
