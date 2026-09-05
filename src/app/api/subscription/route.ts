@@ -65,6 +65,22 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Invalid plan" }, { status: 400 });
     }
 
+    const PLAN_RANK: Record<string, number> = { free: 0, pro: 1, business: 2 };
+
+    const { data: existing } = await supabaseAdmin
+      .from("subscriptions")
+      .select("id, plan")
+      .eq("user_id", userId)
+      .maybeSingle();
+
+    if (existing) {
+      const currentRank = PLAN_RANK[existing.plan] ?? 0;
+      const targetRank = PLAN_RANK[plan] ?? 0;
+      if (targetRank < currentRank) {
+        return NextResponse.json({ error: "Only upgrades to a higher plan are allowed" }, { status: 403 });
+      }
+    }
+
     const billingInterval = (INTERVALS[interval as string] ?? "month") as "month" | "quarter" | "semiannual" | "year";
 
     let periodEnd: string | null = null;
@@ -73,12 +89,6 @@ export async function POST(request: NextRequest) {
       now.setMonth(now.getMonth() + INTERVAL_MONTHS[billingInterval]);
       periodEnd = now.toISOString();
     }
-
-    const { data: existing } = await supabaseAdmin
-      .from("subscriptions")
-      .select("id")
-      .eq("user_id", userId)
-      .maybeSingle();
 
     let result;
     if (existing) {

@@ -6,14 +6,6 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
 import { CreditCard, ArrowUpRight, Loader2, Check } from "lucide-react";
 import { useEffect, useState } from "react";
 
@@ -27,6 +19,8 @@ const PRICES: Record<PaidPlan, Record<Interval, number>> = {
   pro: { month: 29, quarter: 79, semiannual: 149, year: 279 },
   business: { month: 99, quarter: 259, semiannual: 499, year: 949 },
 };
+
+const PLAN_RANK: Record<Plan, number> = { free: 0, pro: 1, business: 2 };
 
 interface SubscriptionData {
   plan: Plan;
@@ -48,7 +42,6 @@ export default function BillingPage() {
   });
   const [loading, setLoading] = useState(true);
   const [activating, setActivating] = useState(false);
-  const [confirmCancelOpen, setConfirmCancelOpen] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -93,7 +86,6 @@ export default function BillingPage() {
       setError(e instanceof Error ? e.message : "Failed to update subscription");
     } finally {
       setActivating(false);
-      setConfirmCancelOpen(false);
     }
   };
 
@@ -168,16 +160,6 @@ export default function BillingPage() {
                       <ArrowUpRight className="w-4 h-4" />
                     </Button>
                   )}
-                  {!loading && currentPlanPaid && (
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => setConfirmCancelOpen(true)}
-                      disabled={activating}
-                    >
-                      {t("cancelSubscription")}
-                    </Button>
-                  )}
                 </div>
               </div>
               {!currentPlanPaid && <p className="text-xs text-muted-foreground">{t("freeHint")}</p>}
@@ -204,6 +186,7 @@ export default function BillingPage() {
               {plans.map((plan) => {
                 const isCurrent = plan === currentPlan;
                 const isPaid = plan !== "free";
+                const upgradable = !isCurrent && PLAN_RANK[plan] > PLAN_RANK[currentPlan];
                 const interval = isPaid ? selectedInterval[plan as PaidPlan] : "month";
                 return (
                   <Card
@@ -230,7 +213,7 @@ export default function BillingPage() {
                               {t(`planDescription.${plan}`)}
                             </p>
                           </div>
-                          {!isCurrent && isPaid && (
+                          {upgradable && isPaid && (
                             <Button
                               onClick={() => activate(plan, selectedInterval[plan as PaidPlan])}
                               disabled={activating}
@@ -241,16 +224,11 @@ export default function BillingPage() {
                               {t("upgrade")}
                             </Button>
                           )}
-                          {!isCurrent && plan === "free" && (
-                            <Button variant="ghost" size="sm" onClick={() => setConfirmCancelOpen(true)} disabled={activating}>
-                              {t("cancelPlan")}
-                            </Button>
-                          )}
                           {isCurrent && !loading && <span className="text-sm text-muted-foreground">{t("active")}</span>}
                         </div>
                       </div>
 
-                      {isPaid && (
+                      {isPaid && upgradable && (
                         <div className="flex flex-wrap items-center gap-2">
                           {INTERVALS.map((iv) => (
                             <button
@@ -263,8 +241,7 @@ export default function BillingPage() {
                                 interval === iv
                                   ? "border-primary bg-primary text-primary-foreground"
                                   : "border-border bg-background text-muted-foreground hover:border-primary/50"
-                              } ${isCurrent ? "pointer-events-none opacity-50" : ""}`}
-                              disabled={isCurrent}
+                              }`}
                             >
                               ${priceOf(plan, iv)} · {t(`interval.${iv}`)}
                             </button>
@@ -277,24 +254,6 @@ export default function BillingPage() {
               })}
             </div>
           </div>
-
-          <Dialog open={confirmCancelOpen} onOpenChange={setConfirmCancelOpen}>
-            <DialogContent>
-              <DialogHeader>
-                <DialogTitle>{t("cancelConfirmTitle")}</DialogTitle>
-                <DialogDescription>{t("cancelConfirmDescription")}</DialogDescription>
-              </DialogHeader>
-              <DialogFooter>
-                <Button variant="ghost" onClick={() => setConfirmCancelOpen(false)} disabled={activating}>
-                  {t("keepPlan")}
-                </Button>
-                <Button variant="destructive" onClick={() => activate("free")} disabled={activating}>
-                  {activating ? <Loader2 className="w-4 h-4 animate-spin" /> : null}
-                  {t("confirmCancel")}
-                </Button>
-              </DialogFooter>
-            </DialogContent>
-          </Dialog>
         </div>
       </main>
     </div>
