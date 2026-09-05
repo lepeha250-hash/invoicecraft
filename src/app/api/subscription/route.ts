@@ -33,7 +33,7 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({
       userId,
-      subscription: data || { user_id: userId, plan: "free", status: "active" },
+      subscription: data || { user_id: userId, plan: "free", status: "active", billing_interval: "month" },
     });
   } catch (error) {
     console.error("Subscription status error:", error);
@@ -41,14 +41,37 @@ export async function GET(request: NextRequest) {
   }
 }
 
+const INTERVALS: Record<string, "month" | "quarter" | "semiannual" | "year"> = {
+  month: "month",
+  quarter: "quarter",
+  semiannual: "semiannual",
+  year: "year",
+};
+
+const INTERVAL_MONTHS: Record<string, number> = {
+  month: 1,
+  quarter: 3,
+  semiannual: 6,
+  year: 12,
+};
+
 export async function POST(request: NextRequest) {
   try {
-    const { plan } = await request.json();
+    const { plan, interval } = await request.json();
     const userId = await resolveUserId(request);
 
     const allowed = ["free", "pro", "business"];
     if (!allowed.includes(plan)) {
       return NextResponse.json({ error: "Invalid plan" }, { status: 400 });
+    }
+
+    const billingInterval = (INTERVALS[interval as string] ?? "month") as "month" | "quarter" | "semiannual" | "year";
+
+    let periodEnd: string | null = null;
+    if (plan !== "free") {
+      const now = new Date();
+      now.setMonth(now.getMonth() + INTERVAL_MONTHS[billingInterval]);
+      periodEnd = now.toISOString();
     }
 
     const { data: existing } = await supabaseAdmin
@@ -61,7 +84,13 @@ export async function POST(request: NextRequest) {
     if (existing) {
       const upd = await supabaseAdmin
         .from("subscriptions")
-        .update({ plan, status: "active", updated_at: new Date().toISOString() })
+        .update({
+          plan,
+          billing_interval: billingInterval,
+          current_period_end: periodEnd,
+          status: "active",
+          updated_at: new Date().toISOString(),
+        })
         .eq("id", existing.id)
         .select()
         .single();
@@ -69,7 +98,13 @@ export async function POST(request: NextRequest) {
     } else {
       const ins = await supabaseAdmin
         .from("subscriptions")
-        .insert({ user_id: userId, plan, status: "active" })
+        .insert({
+          user_id: userId,
+          plan,
+          billing_interval: billingInterval,
+          current_period_end: periodEnd,
+          status: "active",
+        })
         .select()
         .single();
       result = ins.data;

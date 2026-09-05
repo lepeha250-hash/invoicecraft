@@ -481,6 +481,17 @@
     "availablePlans": "Available Plans",
     "current": "Current",
     "active": "Active",
+    "currentPrice": "{price}",
+    "cancelConfirmTitle": "Cancel subscription?",
+    "cancelConfirmDescription": "You will switch to the Free plan. Paid features will be disabled at the end of the current billing period.",
+    "keepPlan": "Keep my plan",
+    "confirmCancel": "Yes, cancel",
+    "interval": {
+      "month": "per month",
+      "quarter": "3 months",
+      "semiannual": "6 months",
+      "year": "1 year"
+    },
     "planDescription": {
       "free": "3 documents, up to 5 line items",
       "pro": "Unlimited documents, PDF export, API access",

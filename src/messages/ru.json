@@ -481,6 +481,17 @@
     "availablePlans": "Доступные тарифы",
     "current": "Текущий",
     "active": "Активен",
+    "currentPrice": "{price}",
+    "cancelConfirmTitle": "Отменить подписку?",
+    "cancelConfirmDescription": "Вы перейдёте на бесплатный тариф. Платные функции отключатся в конце текущего расчётного периода.",
+    "keepPlan": "Оставить тариф",
+    "confirmCancel": "Да, отменить",
+    "interval": {
+      "month": "в месяц",
+      "quarter": "3 месяца",
+      "semiannual": "6 месяцев",
+      "year": "1 год"
+    },
     "planDescription": {
       "free": "3 документа, до 5 позиций",
       "pro": "Безлимит документов, экспорт PDF, доступ по API",
