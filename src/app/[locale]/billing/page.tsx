@@ -22,6 +22,13 @@ const PRICES: Record<PaidPlan, Record<Interval, number>> = {
 
 const PLAN_RANK: Record<Plan, number> = { free: 0, pro: 1, business: 2 };
 
+const INTERVAL_MONTHS: Record<Interval, number> = {
+  month: 1,
+  quarter: 3,
+  semiannual: 6,
+  year: 12,
+};
+
 interface SubscriptionData {
   plan: Plan;
   billing_interval?: Interval;
@@ -102,6 +109,14 @@ export default function BillingPage() {
     return PRICES[plan][interval];
   };
 
+  const discountOf = (plan: Plan, interval: Interval) => {
+    if (plan === "free" || interval === "month") return 0;
+    const monthly = PRICES[plan as PaidPlan].month;
+    const value = PRICES[plan as PaidPlan][interval];
+    const months = INTERVAL_MONTHS[interval];
+    return Math.round((1 - value / (monthly * months)) * 100);
+  };
+
   const formatPrice = (plan: Plan, interval: Interval) => {
     if (plan === "free") return `$${priceOf(plan, interval)}`;
     const value = priceOf(plan, interval);
@@ -137,9 +152,19 @@ export default function BillingPage() {
                   </Badge>
                   {currentPlanPaid ? (
                     <>
-                      <p className="text-sm text-muted-foreground">
-                        {t("currentPrice", { price: formatPrice(currentPlan, currentInterval) })}
-                      </p>
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <p className="text-base font-semibold">
+                          {t("currentPrice", { price: formatPrice(currentPlan, currentInterval) })}
+                        </p>
+                        {discountOf(currentPlan, currentInterval) > 0 && (
+                          <Badge variant="secondary">−{discountOf(currentPlan, currentInterval)}%</Badge>
+                        )}
+                      </div>
+                      {discountOf(currentPlan, currentInterval) > 0 && (
+                        <p className="text-xs text-muted-foreground line-through">
+                          ${PRICES[currentPlan as PaidPlan].month} / {t("interval.month").toLowerCase()}
+                        </p>
+                      )}
                       {currentPeriodEnd && (
                         <p className="text-sm text-muted-foreground">
                           {t("nextBilling", { date: formatDate(currentPeriodEnd) })}
@@ -230,22 +255,36 @@ export default function BillingPage() {
 
                       {isPaid && upgradable && (
                         <div className="flex flex-wrap items-center gap-2">
-                          {INTERVALS.map((iv) => (
-                            <button
-                              key={iv}
-                              type="button"
-                              onClick={() =>
-                                setSelectedInterval((prev) => ({ ...prev, [plan as PaidPlan]: iv }))
-                              }
-                              className={`rounded-full border px-3 py-1 text-xs transition-colors ${
-                                interval === iv
-                                  ? "border-primary bg-primary text-primary-foreground"
-                                  : "border-border bg-background text-muted-foreground hover:border-primary/50"
-                              }`}
-                            >
-                              ${priceOf(plan, iv)} · {t(`interval.${iv}`)}
-                            </button>
-                          ))}
+                          {INTERVALS.map((iv) => {
+                            const d = discountOf(plan, iv);
+                            return (
+                              <button
+                                key={iv}
+                                type="button"
+                                onClick={() =>
+                                  setSelectedInterval((prev) => ({ ...prev, [plan as PaidPlan]: iv }))
+                                }
+                                className={`rounded-full border px-3 py-1 text-xs transition-colors flex items-center gap-1 ${
+                                  interval === iv
+                                    ? "border-primary bg-primary text-primary-foreground"
+                                    : "border-border bg-background text-muted-foreground hover:border-primary/50"
+                                }`}
+                              >
+                                ${priceOf(plan, iv)} · {t(`interval.${iv}`)}
+                                {d > 0 && (
+                                  <span
+                                    className={
+                                      interval === iv
+                                        ? "rounded-full px-1.5 py-0.5 text-[10px] font-semibold bg-primary-foreground/20"
+                                        : "rounded-full px-1.5 py-0.5 text-[10px] font-semibold bg-emerald-500/15 text-emerald-600"
+                                    }
+                                  >
+                                    −{d}%
+                                  </span>
+                                )}
+                              </button>
+                            );
+                          })}
                         </div>
                       )}
                     </CardContent>
