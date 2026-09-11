@@ -1,4 +1,4 @@
-import { Metadata } from "next";
+﻿import { Metadata } from "next";
 import { notFound } from "next/navigation";
 import DocumentsClient from "./documents-client";
 import { supabaseAdmin } from "@/lib/supabase/server";
@@ -11,7 +11,7 @@ interface Props {
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { locale } = await params;
-  const titles = { en: "Documents — InvoiceCraft", ru: "Документы — InvoiceCraft" };
+  const titles = { en: "Documents вЂ” InvoiceCraft", ru: "Р”РѕРєСѓРјРµРЅС‚С‹ вЂ” InvoiceCraft" };
   return { title: titles[locale as "en" | "ru"] };
 }
 
@@ -19,11 +19,11 @@ export async function generateStaticParams() {
   return [{ locale: "en" }, { locale: "ru" }];
 }
 
-export default async function DocumentsPage({ params, searchParams }: Props) {
-  const { locale } = await params;
+export default async function DocumentsPage({ searchParams }: Props) {
   const { search, page = "1" } = await searchParams;
 
   const demoOrgId = await getActiveOrgId();
+  if (!demoOrgId) notFound();
 
   const { data: documents, error } = await supabaseAdmin
     .from("documents")
@@ -37,5 +37,5 @@ export default async function DocumentsPage({ params, searchParams }: Props) {
     notFound();
   }
 
-  return <DocumentsClient locale={locale as "en" | "ru"} documents={documents ?? []} search={search ?? ""} />;
+  return <DocumentsClient documents={documents ?? []} search={search ?? ""} />;
 }

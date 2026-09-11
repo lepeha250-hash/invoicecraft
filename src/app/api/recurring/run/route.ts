@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabase/server";
 
 const cadenceDays: Record<string, number> = {
@@ -9,7 +9,7 @@ const cadenceDays: Record<string, number> = {
 };
 
 // Processes recurring documents that are due (next_run_at <= now)
-export async function POST(request: NextRequest) {
+export async function POST() {
   try {
     const now = new Date().toISOString();
 

@@ -1,6 +1,6 @@
 "use client";
 
-import { useTranslations, useLocale } from "next-intl";
+import { useTranslations } from "next-intl";
 import { AppSidebar } from "@/components/app-sidebar";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -15,7 +15,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Wand2, FileText, Receipt, ClipboardCheck, Plus, X, Download, Save, Loader2, Copy, Trash2 } from "lucide-react";
+import { Wand2, FileText, Receipt, ClipboardCheck, Plus, X, Download, Save, Loader2, Copy } from "lucide-react";
 import { getClientOrgId } from "@/lib/client-org";
 import { useState, useCallback, useEffect } from "react";
 import type { BillingSettings } from "@/lib/billing";
@@ -218,6 +218,7 @@ export default function EditorClient({ locale, initialDoc }: EditorClientProps) 
   const [companyAddress, setCompanyAddress] = useState("");
   const [settings, setSettings] = useState<BillingSettings>(DEFAULT_SETTINGS);
   const [seq, setSeq] = useState(0);
+  const demoOrgId = getClientOrgId();
 
   useEffect(() => {
     fetch(`/api/settings/${demoOrgId}`)
@@ -234,12 +235,10 @@ export default function EditorClient({ locale, initialDoc }: EditorClientProps) 
         if (data.brand?.address) setCompanyAddress(data.brand.address);
       })
       .catch(() => {});
-  }, []);
+  }, [demoOrgId]);
 
   const presets = SERVICE_PRESETS[locale]?.[docType] ?? [];
   const currency = locale === "ru" ? "₽" : "$";
-  const demoOrgId = getClientOrgId();
-  const accentColor = settings.brand?.accent_color || "#2563eb";
 
   const addItem = () => {
     setItems([
@@ -259,7 +258,7 @@ export default function EditorClient({ locale, initialDoc }: EditorClientProps) 
   const subTotal = items.reduce((sum, item) => sum + item.quantity * item.unit_price, 0);
   const totals = computeTotals(subTotal, settings);
 
-  const buildContent = () => {
+  const buildContent = useCallback(() => {
     const number = generateDocumentNumber(docType, seq, settings);
     return {
       header: {
@@ -274,7 +273,7 @@ export default function EditorClient({ locale, initialDoc }: EditorClientProps) 
       notes,
       terms,
     };
-  };
+  }, [docType, seq, settings, companyName, companyAddress, clientName, clientAddress, items, notes, terms]);
 
   const applyPreset = (preset: ServicePreset) => {
     setTitle(preset.title);
@@ -322,7 +321,7 @@ export default function EditorClient({ locale, initialDoc }: EditorClientProps) 
     } finally {
       setSaving(false);
     }
-  }, [savedId, docType, title, clientName, clientAddress, items, notes, terms, companyName, companyAddress, seq, settings, locale]);
+  }, [buildContent, savedId, demoOrgId, docType, title, locale]);
 
   const duplicateDocument = async () => {
     setSaving(true);

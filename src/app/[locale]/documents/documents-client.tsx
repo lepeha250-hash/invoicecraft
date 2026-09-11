@@ -6,7 +6,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
-import { FileText, Receipt, ClipboardCheck, Plus, Search, Download, Pencil, Trash2, Copy, Archive, Loader2, CheckSquare } from "lucide-react";
+import { FileText, Receipt, ClipboardCheck, Plus, Search, Pencil, Trash2, Copy, Archive, Loader2, CheckSquare } from "lucide-react";
 import { Link } from "@/lib/i18n/navigation";
 import { useState } from "react";
 import { getClientOrgId } from "@/lib/client-org";
@@ -29,12 +29,11 @@ const typeMeta = {
 } as const;
 
 interface DocumentsClientProps {
-  locale: "en" | "ru";
   documents: DocItem[];
   search: string;
 }
 
-export default function DocumentsClient({ locale, documents, search }: DocumentsClientProps) {
+export default function DocumentsClient({ documents, search }: DocumentsClientProps) {
   const t = useTranslations("common");
   const tn = useTranslations("nav");
   const [localSearch, setLocalSearch] = useState(search);

@@ -1,4 +1,4 @@
-import { Metadata } from "next";
+﻿import { Metadata } from "next";
 import { notFound } from "next/navigation";
 import AuditLogClient from "./audit-log-client";
 import { supabaseAdmin } from "@/lib/supabase/server";
@@ -10,7 +10,7 @@ interface Props {
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { locale } = await params;
-  const titles = { en: "Audit Log — InvoiceCraft", ru: "Журнал аудита — InvoiceCraft" };
+  const titles = { en: "Audit Log вЂ” InvoiceCraft", ru: "Р–СѓСЂРЅР°Р» Р°СѓРґРёС‚Р° вЂ” InvoiceCraft" };
   return { title: titles[locale as "en" | "ru"] };
 }
 
@@ -19,6 +19,7 @@ export const dynamic = "force-dynamic";
 export default async function AuditLogPage({ params }: Props) {
   const { locale } = await params;
   const demoOrgId = await getActiveOrgId();
+  if (!demoOrgId) notFound();
 
   const { data: entries, error } = await supabaseAdmin
     .from("audit_log")

@@ -21,13 +21,12 @@ import type { BillingSettings } from "@/lib/billing";
 import { DEFAULT_SETTINGS } from "@/lib/billing";
 
 interface SettingsClientProps {
-  locale: "en" | "ru";
   orgId: string;
   orgName: string;
   settings: BillingSettings;
 }
 
-export default function SettingsClient({ locale, orgId, orgName, settings }: SettingsClientProps) {
+export default function SettingsClient({ orgId, orgName, settings }: SettingsClientProps) {
   const t = useTranslations("settings");
   const tc = useTranslations("common");
   const { setTheme: applyTheme } = useTheme();

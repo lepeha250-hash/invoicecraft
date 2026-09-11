@@ -1,4 +1,4 @@
-import { Metadata } from "next";
+﻿import { Metadata } from "next";
 import { notFound } from "next/navigation";
 import WebhooksClient from "./webhooks-client";
 import { supabaseAdmin } from "@/lib/supabase/server";
@@ -10,15 +10,15 @@ interface Props {
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { locale } = await params;
-  const titles = { en: "Webhooks — InvoiceCraft", ru: "Вебхуки — InvoiceCraft" };
+  const titles = { en: "Webhooks вЂ” InvoiceCraft", ru: "Р’РµР±С…СѓРєРё вЂ” InvoiceCraft" };
   return { title: titles[locale as "en" | "ru"] };
 }
 
 export const dynamic = "force-dynamic";
 
-export default async function WebhooksPage({ params }: Props) {
-  const { locale } = await params;
+export default async function WebhooksPage() {
   const demoOrgId = await getActiveOrgId();
+  if (!demoOrgId) notFound();
 
   const { data: webhooks, error } = await supabaseAdmin
     .from("webhooks")
@@ -39,7 +39,6 @@ export default async function WebhooksPage({ params }: Props) {
 
   return (
     <WebhooksClient
-      locale={locale as "en" | "ru"}
       webhooks={webhooks ?? []}
       deliveries={deliveries ?? []}
     />

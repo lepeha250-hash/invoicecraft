@@ -9,7 +9,6 @@ import { FileText, Mail, Lock, User, Loader2 } from "lucide-react";
 import { supabase } from "@/lib/supabase/client";
 import { Link, useRouter } from "@/lib/i18n/navigation";
 import { useState } from "react";
-import { useLocale } from "next-intl";
 
 type AuthMode = "login" | "signup";
 
@@ -17,7 +16,6 @@ export default function AuthPage({ mode = "login" }: { mode?: AuthMode }) {
   const t = useTranslations("auth");
   const tc = useTranslations("common");
   const router = useRouter();
-  const locale = useLocale();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
@@ -25,14 +23,6 @@ export default function AuthPage({ mode = "login" }: { mode?: AuthMode }) {
   const [error, setError] = useState<string | null>(null);
 
   const isLogin = mode === "login";
-
-  const redirectTo = (() => {
-    try {
-      return new URL("/api/auth/callback", window.location.origin).toString();
-    } catch {
-      return process.env.NEXT_PUBLIC_APP_URL + "/api/auth/callback";
-    }
-  })();
 
   const handleGoogle = async () => {
     setLoading(true);

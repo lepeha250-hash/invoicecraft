@@ -46,6 +46,7 @@ a REST API, webhooks, email sequences, recurring billing and subscription moneti
 ## Repository Layout
 
 ```
+middleware.ts          # next-intl locale routing + sign-in wall + org cookie provisioning
 src/
   app/
     [locale]/            # localized pages (dashboard, documents, editor, billing, settings, ...)
@@ -68,7 +69,7 @@ src/
     billing.ts           # pure invoicing logic (numbers, totals, taxes)
     plans.ts             # pure pricing model (plans, intervals, discounts)
     api-keys.ts          # key generation + bearer resolution
-    server-org.ts        # active org resolution (session-aware, demo fallback)
+    server-org.ts        # active org resolution (cookie → session → DB lookup)
 supabase/
   schema.sql             # core schema + RLS + signup triggers
   auth-schema.sql        # profile/org/subscription provisioning trigger
@@ -129,13 +130,15 @@ Open http://localhost:3000, sign up, and you are ready.
 ## Testing
 
 ```bash
-npm test          # Vitest unit tests
-npm run lint      # ESLint
-npm run build     # production build check
+npm test            # Vitest unit tests (23 tests)
+npm run lint        # ESLint (0 errors)
+npm run build       # production build check
+npm run test:e2e    # Playwright smoke tests (needs `npx playwright install`)
 ```
 
-Unit tests cover the pricing model (`src/lib/plans.ts`) and invoicing logic
-(`src/lib/billing.ts`) — the pure business rules that must never regress.
+Unit tests cover the pricing model (`src/lib/plans.ts`), invoicing logic (`src/lib/billing.ts`),
+and API key generation/resolution (`src/lib/api-keys.ts`). The CI workflow (`deploy.yml`) runs
+lint + unit tests before every deployment.
 
 ## Deployment
 
@@ -185,6 +188,40 @@ Authorization: Bearer ic_<48-hex-chars>
 
 Keys are created in the **API Access** page and stored hashed-reasonable (prefixed store) with
 revocation and last-used tracking.
+
+### Quickstart
+
+```bash
+# List documents
+curl -H "Authorization: Bearer ic_YOUR_KEY" \
+     https://invoicecraft-taupe.vercel.app/api/v1/documents
+
+# Get stats
+curl -H "Authorization: Bearer ic_YOUR_KEY" \
+     https://invoicecraft-taupe.vercel.app/api/v1/stats
+```
+
+## Database Schema
+
+Core tables (all scoped by `org_id`):
+
+| Table                | Purpose                                      |
+| -------------------- | -------------------------------------------- |
+| `profiles`           | User profile (auto-created on signup)        |
+| `organizations`      | Tenant org (one per user, linked by user_id) |
+| `subscriptions`      | Plan + billing interval + period end         |
+| `documents`          | Proposals, invoices, acceptance acts          |
+| `api_keys`           | `ic_`-prefixed bearer tokens                 |
+| `webhooks`           | Webhook endpoints per org                    |
+| `webhook_deliveries` | Delivery log for webhooks                    |
+| `email_sequences`    | Multi-step email automation                  |
+| `email_sequence_logs`| Execution log for sequences                  |
+| `recurring_documents`| Scheduled recurring doc generation           |
+| `audit_log`          | Org-scoped audit trail                       |
+| `teams` / `team_members` / `team_invites` | Multi-member team support |
+
+Signup triggers (`auth-schema.sql`) auto-provision: profile → organization → free subscription.
+The middleware ensures every authenticated request has an `invoicecraft_org` cookie.
 
 ## License
 

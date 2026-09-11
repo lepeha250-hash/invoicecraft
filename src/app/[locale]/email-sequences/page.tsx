@@ -1,4 +1,4 @@
-import { Metadata } from "next";
+﻿import { Metadata } from "next";
 import { notFound } from "next/navigation";
 import SequencesClient from "./sequences-client";
 import { supabaseAdmin } from "@/lib/supabase/server";
@@ -10,16 +10,16 @@ interface Props {
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { locale } = await params;
-  const titles = { en: "Email Sequences — InvoiceCraft", ru: "Email-цепочки — InvoiceCraft" };
+  const titles = { en: "Email Sequences вЂ” InvoiceCraft", ru: "Email-С†РµРїРѕС‡РєРё вЂ” InvoiceCraft" };
   return { title: titles[locale as "en" | "ru"] };
 }
 
 // Force dynamic rendering since data changes
 export const dynamic = "force-dynamic";
 
-export default async function SequencesPage({ params }: Props) {
-  const { locale } = await params;
+export default async function SequencesPage() {
   const demoOrgId = await getActiveOrgId();
+  if (!demoOrgId) notFound();
 
   const { data: sequences, error } = await supabaseAdmin
     .from("email_sequences")
@@ -40,7 +40,6 @@ export default async function SequencesPage({ params }: Props) {
 
   return (
     <SequencesClient
-      locale={locale as "en" | "ru"}
       sequences={sequences ?? []}
       logs={logs ?? []}
     />

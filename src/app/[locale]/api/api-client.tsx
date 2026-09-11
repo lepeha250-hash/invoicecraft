@@ -39,11 +39,10 @@ interface ApiKeyRow {
 }
 
 interface ApiClientProps {
-  locale: "en" | "ru";
   keys: ApiKeyRow[];
 }
 
-export default function ApiClient({ locale, keys }: ApiClientProps) {
+export default function ApiClient({ keys }: ApiClientProps) {
   const t = useTranslations("apiPage");
   const tc = useTranslations("common");
 

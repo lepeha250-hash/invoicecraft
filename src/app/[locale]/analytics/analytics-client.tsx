@@ -48,7 +48,6 @@ interface AnalyticsClientProps {
 
 export default function AnalyticsClient({ locale, data }: AnalyticsClientProps) {
   const t = useTranslations("analytics");
-  const currency = locale === "ru" ? "₽" : "$";
   const { summary, revenueByMonth, statusCounts, typeCounts, topClients, recent } = data;
 
   const fmt = (n: number) =>

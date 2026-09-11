@@ -51,7 +51,6 @@ interface DeliveryRow {
 }
 
 interface WebhooksClientProps {
-  locale: "en" | "ru";
   webhooks: WebhookRow[];
   deliveries: DeliveryRow[];
 }
@@ -66,7 +65,7 @@ export const WEBHOOK_EVENTS = [
   "document.deleted",
 ] as const;
 
-export default function WebhooksClient({ locale, webhooks, deliveries }: WebhooksClientProps) {
+export default function WebhooksClient({ webhooks, deliveries }: WebhooksClientProps) {
   const t = useTranslations("webhooksPage");
   const tc = useTranslations("common");
 

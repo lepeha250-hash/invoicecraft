@@ -1,9 +1,9 @@
 "use client";
 
-import { useTranslations, useLocale } from "next-intl";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useTranslations } from "next-intl";
+import { useRouter } from "next/navigation";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { Users, Mail, AlertCircle, CheckCircle, Loader2 } from "lucide-react";
 import { useState } from "react";
 
@@ -26,6 +26,7 @@ interface TeamInviteClientProps {
 
 export default function TeamInviteClient({ locale, invite }: TeamInviteClientProps) {
   const t = useTranslations("team");
+  const router = useRouter();
   const [accepting, setAccepting] = useState(false);
   const [accepted, setAccepted] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -67,7 +68,7 @@ export default function TeamInviteClient({ locale, invite }: TeamInviteClientPro
               </div>
               <h1 className="text-2xl font-bold">{t("inviteAccepted")}</h1>
               <p className="text-muted-foreground mt-2">{t("welcomeToTeam")}</p>
-              <Button className="mt-6 w-full" onClick={() => window.location.href = `/${locale}/dashboard`}>
+              <Button className="mt-6 w-full" onClick={() => router.replace(`/${locale}/dashboard`)}>
                 {t("goToDashboard")}
               </Button>
             </div>

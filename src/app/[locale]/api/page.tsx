@@ -1,4 +1,4 @@
-import { Metadata } from "next";
+﻿import { Metadata } from "next";
 import { notFound } from "next/navigation";
 import ApiClient from "./api-client";
 import { supabaseAdmin } from "@/lib/supabase/server";
@@ -10,15 +10,15 @@ interface Props {
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { locale } = await params;
-  const titles = { en: "API Access — InvoiceCraft", ru: "API-доступ — InvoiceCraft" };
+  const titles = { en: "API Access вЂ” InvoiceCraft", ru: "API-РґРѕСЃС‚СѓРї вЂ” InvoiceCraft" };
   return { title: titles[locale as "en" | "ru"] };
 }
 
 export const dynamic = "force-dynamic";
 
-export default async function ApiPage({ params }: Props) {
-  const { locale } = await params;
+export default async function ApiPage() {
   const demoOrgId = await getActiveOrgId();
+  if (!demoOrgId) notFound();
 
   const { data: keys, error } = await supabaseAdmin
     .from("api_keys")
@@ -31,5 +31,5 @@ export default async function ApiPage({ params }: Props) {
     notFound();
   }
 
-  return <ApiClient locale={locale as "en" | "ru"} keys={keys ?? []} />;
+  return <ApiClient keys={keys ?? []} />;
 }

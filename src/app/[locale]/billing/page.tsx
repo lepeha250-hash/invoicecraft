@@ -28,7 +28,7 @@ interface SubscriptionData {
 
 export default function BillingPage() {
   const t = useTranslations("billing");
-  const [locale, setLocale] = useState<"en" | "ru">(() =>
+  const [locale] = useState<"en" | "ru">(() =>
     typeof document !== "undefined" && document.documentElement.lang === "ru" ? "ru" : "en"
   );
 
@@ -43,6 +43,8 @@ export default function BillingPage() {
   const [loading, setLoading] = useState(true);
   const [activating, setActivating] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [documentsUsed, setDocumentsUsed] = useState(0);
+  const [documentsLimit, setDocumentsLimit] = useState(3);
 
   useEffect(() => {
     (async () => {
@@ -54,6 +56,10 @@ export default function BillingPage() {
           setCurrentPlan(sub.plan);
           if (sub.billing_interval) setCurrentInterval(sub.billing_interval);
           if (sub.current_period_end) setCurrentPeriodEnd(sub.current_period_end);
+        }
+        if (json.documents) {
+          setDocumentsUsed(json.documents.used ?? 0);
+          setDocumentsLimit(json.documents.limit ?? 3);
         }
       } catch (e) {
         console.error(e);
@@ -152,7 +158,9 @@ export default function BillingPage() {
                     </>
                   ) : (
                     <p className="text-sm text-muted-foreground">
-                      {t("documentsUsed", { used: "0", limit: "3" })}
+                      {documentsLimit < 0
+                        ? t("documentsUnlimited")
+                        : t("documentsUsed", { used: String(documentsUsed), limit: String(documentsLimit) })}
                     </p>
                   )}
                 </div>

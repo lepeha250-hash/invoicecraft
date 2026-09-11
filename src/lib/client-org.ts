@@ -1,7 +1,9 @@
-const DEMO_ORG_ID = "ecb399e5-bf2f-487a-b2e0-f3104cfd2b30";
-
+/**
+ * Client-side org id: read from the `invoicecraft_org` cookie.
+ * The middleware + sign-in flow guarantee this cookie exists for signed-in users.
+ */
 export function getClientOrgId(): string {
-  if (typeof window === "undefined") return DEMO_ORG_ID;
+  if (typeof window === "undefined") return "";
   const match = document.cookie.match(/(?:^|; )invoicecraft_org=([^;]+)/);
-  return match ? decodeURIComponent(match[1]) : DEMO_ORG_ID;
+  return match ? decodeURIComponent(match[1]) : "";
 }

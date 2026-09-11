@@ -15,33 +15,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Users, Mail, Plus, Trash2, Loader2, Shield, User, Crown, ShieldCheck, Eye } from "lucide-react";
+import { Users, Mail, Plus, Trash2, Loader2, User, Crown, ShieldCheck, Eye } from "lucide-react";
 import { useState } from "react";
 
-interface Team {
-  id: string;
-  name: string;
-  slug: string;
-  owner_id: string;
-}
-
-interface Member {
-  id: string;
-  team_id: string;
-  user_id: string;
-  role: string;
-  profiles: { id: string; name: string; email: string; avatar_url: string | null } | null;
-}
-
-interface Invite {
-  id: string;
-  email: string;
-  role: string;
-  expires_at: string;
-}
-
 interface TeamSettingsClientProps {
-  locale: "en" | "ru";
   team: { id: string; name: string; slug: string; owner_id: string };
   members: Array<{
     id: string;
@@ -52,10 +29,8 @@ interface TeamSettingsClientProps {
   invites: Array<{ id: string; email: string; role: string; expires_at: string }>;
 }
 
-export default function TeamSettingsClient({ locale, team, members, invites }: TeamSettingsClientProps) {
+export default function TeamSettingsClient({ team, members, invites }: TeamSettingsClientProps) {
   const t = useTranslations("team");
-  const tc = useTranslations("common");
-  const [saving, setSaving] = useState(false);
   const [inviteEmail, setInviteEmail] = useState("");
   const [inviteRole, setInviteRole] = useState<"admin" | "member" | "viewer">("member");
   const [inviting, setInviting] = useState(false);

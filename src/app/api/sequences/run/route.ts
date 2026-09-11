@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabase/server";
 
 interface SequenceStep {
@@ -7,7 +7,7 @@ interface SequenceStep {
   body: string;
 }
 
-export async function POST(_request: NextRequest) {
+export async function POST() {
   try {
     // 1. Active sequences
     const { data: sequences, error: seqError } = await supabaseAdmin

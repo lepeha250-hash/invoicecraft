@@ -1,16 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
+import { createServerClient } from "@supabase/ssr";
 import { supabaseAdmin } from "@/lib/supabase/server";
 
-const DEMO_USER = "9fca18f6-9db8-4ad9-957e-9ec5821e163d";
-
-const DEMO_ORG = "ecb399e5-bf2f-487a-b2e0-f3104cfd2b30";
-
-async function resolveUserId(req: NextRequest): Promise<string> {
-  const cookieOrg = req.cookies.get("invoicecraft_org")?.value;
-  const headerUserId = req.headers.get("x-user-id");
-  if (headerUserId) return headerUserId;
-
-  if (cookieOrg && cookieOrg !== DEMO_ORG) {
+async function resolveUserId(request: NextRequest): Promise<string | null> {
+  const cookieOrg = request.cookies.get("invoicecraft_org")?.value;
+  if (cookieOrg) {
     const { data: org } = await supabaseAdmin
       .from("organizations")
       .select("user_id")
@@ -19,22 +13,54 @@ async function resolveUserId(req: NextRequest): Promise<string> {
     if (org?.user_id) return org.user_id;
   }
 
-  return DEMO_USER;
+  const supabase = createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    {
+      cookies: {
+        getAll() {
+          return request.cookies.getAll();
+        },
+      },
+    }
+  );
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  return user?.id ?? null;
+}
+
+function unauthorized() {
+  return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 }
 
 export async function GET(request: NextRequest) {
   try {
     const userId = await resolveUserId(request);
+    if (!userId) return unauthorized();
+
     const { data } = await supabaseAdmin
       .from("subscriptions")
       .select("*")
       .eq("user_id", userId)
       .maybeSingle();
 
-    return NextResponse.json({
-      userId,
-      subscription: data || { user_id: userId, plan: "free", status: "active", billing_interval: "month" },
-    });
+    const subscription = data || { user_id: userId, plan: "free", status: "active", billing_interval: "month" };
+
+    // Real usage counters for the billing page
+    const docLimit = subscription.plan === "free" ? 3 : -1;
+    let used = 0;
+    const orgCookie = request.cookies.get("invoicecraft_org")?.value;
+    if (orgCookie) {
+      const { count } = await supabaseAdmin
+        .from("documents")
+        .select("id", { count: "exact", head: true })
+        .eq("org_id", orgCookie);
+      used = count || 0;
+    }
+
+    return NextResponse.json({ userId, subscription, documents: { used, limit: docLimit } });
   } catch (error) {
     console.error("Subscription status error:", error);
     return NextResponse.json({ error: "Failed to load subscription" }, { status: 500 });
@@ -59,6 +85,7 @@ export async function POST(request: NextRequest) {
   try {
     const { plan, interval } = await request.json();
     const userId = await resolveUserId(request);
+    if (!userId) return unauthorized();
 
     const allowed = ["free", "pro", "business"];
     if (!allowed.includes(plan)) {

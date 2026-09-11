@@ -21,7 +21,7 @@ export async function generateStaticParams() {
 export const dynamic = "force-dynamic";
 
 export default async function TeamSettingsPage({ params }: Props) {
-  const { locale, teamId } = await params;
+  const { teamId } = await params;
 
   const { data: team, error } = await supabaseAdmin
     .from("teams")
@@ -33,12 +33,12 @@ export default async function TeamSettingsPage({ params }: Props) {
     return notFound();
   }
 
-  const { data: members, error: membersError } = await supabaseAdmin
+  const { data: members } = await supabaseAdmin
     .from("team_members")
     .select("*, profiles(*)")
     .eq("team_id", teamId);
 
-  const { data: invites, error: invitesError } = await supabaseAdmin
+  const { data: invites } = await supabaseAdmin
     .from("team_invites")
     .select("*")
     .eq("team_id", teamId)
@@ -49,5 +49,5 @@ export default async function TeamSettingsPage({ params }: Props) {
     return notFound();
   }
 
-  return <TeamSettingsClient locale={locale as "en" | "ru"} team={team} members={members ?? []} invites={invites ?? []} />;
+  return <TeamSettingsClient team={team} members={members ?? []} invites={invites ?? []} />;
 }

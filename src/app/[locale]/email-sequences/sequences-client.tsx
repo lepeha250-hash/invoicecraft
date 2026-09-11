@@ -23,7 +23,6 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog";
 import {
   Plus,
@@ -71,7 +70,6 @@ interface SequenceLog {
 }
 
 interface SequencesClientProps {
-  locale: "en" | "ru";
   sequences: Sequence[];
   logs: SequenceLog[];
 }
@@ -83,7 +81,6 @@ const emptyStep = (): SequenceStep => ({
 });
 
 export default function SequencesClient({
-  locale,
   sequences,
   logs,
 }: SequencesClientProps) {

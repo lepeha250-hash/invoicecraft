@@ -1,12 +1,12 @@
 "use client";
 
-import { useTranslations, useLocale } from "next-intl";
+import { useTranslations } from "next-intl";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { Check, Download, FileText, Receipt, ClipboardCheck, AlertCircle, Loader2, CreditCard, Signature } from "lucide-react";
-import { useState, useRef, useEffect } from "react";
+import { Check, Download, FileText, Loader2, CreditCard, Signature } from "lucide-react";
+import { useState, useRef } from "react";
 import type { BillingSettings } from "@/lib/billing";
 
 interface ShareData {

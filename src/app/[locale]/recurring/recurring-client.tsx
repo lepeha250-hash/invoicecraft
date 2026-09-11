@@ -3,9 +3,8 @@
 import { useTranslations } from "next-intl";
 import { AppSidebar } from "@/components/app-sidebar";
 import { getClientOrgId } from "@/lib/client-org";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {

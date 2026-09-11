@@ -1,4 +1,4 @@
-import { Metadata } from "next";
+﻿import { Metadata } from "next";
 import { notFound } from "next/navigation";
 import AnalyticsClient from "./analytics-client";
 import { supabaseAdmin } from "@/lib/supabase/server";
@@ -10,7 +10,7 @@ interface Props {
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { locale } = await params;
-  const titles = { en: "Analytics — InvoiceCraft", ru: "Аналитика — InvoiceCraft" };
+  const titles = { en: "Analytics вЂ” InvoiceCraft", ru: "РђРЅР°Р»РёС‚РёРєР° вЂ” InvoiceCraft" };
   return { title: titles[locale as "en" | "ru"] };
 }
 
@@ -110,6 +110,7 @@ function computeAnalytics(docs: AnalyticsDocRow[]) {
 export default async function AnalyticsPage({ params }: Props) {
   const { locale } = await params;
   const demoOrgId = await getActiveOrgId();
+  if (!demoOrgId) notFound();
 
   const { data: docs, error } = await supabaseAdmin
     .from("documents")

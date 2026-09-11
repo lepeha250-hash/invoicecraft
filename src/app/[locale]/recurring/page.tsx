@@ -1,4 +1,4 @@
-import { Metadata } from "next";
+﻿import { Metadata } from "next";
 import { notFound } from "next/navigation";
 import RecurringClient from "./recurring-client";
 import { supabaseAdmin } from "@/lib/supabase/server";
@@ -10,7 +10,7 @@ interface Props {
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { locale } = await params;
-  const titles = { en: "Recurring Billing — InvoiceCraft", ru: "Регулярные счета — InvoiceCraft" };
+  const titles = { en: "Recurring Billing вЂ” InvoiceCraft", ru: "Р РµРіСѓР»СЏСЂРЅС‹Рµ СЃС‡РµС‚Р° вЂ” InvoiceCraft" };
   return { title: titles[locale as "en" | "ru"] };
 }
 
@@ -20,6 +20,7 @@ export const dynamic = "force-dynamic";
 export default async function RecurringPage({ params }: Props) {
   const { locale } = await params;
   const demoOrgId = await getActiveOrgId();
+  if (!demoOrgId) notFound();
 
   const { data: recurring, error } = await supabaseAdmin
     .from("recurring_documents")
